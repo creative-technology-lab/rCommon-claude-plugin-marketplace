@@ -27,13 +27,13 @@ Before starting, verify the current working directory is inside a clone of the m
 
 5. **Create commands** (if needed) — `commands/<command-name>.md` with YAML frontmatter. The `name` field MUST use the `rcommon:` prefix (e.g., `rcommon:my-command`). The filename omits the prefix.
 
-6. **Create hooks** (if needed) — `hooks/hooks.json` with event-based shell commands. Available events: `PreToolUse`, `PostToolUse`, `Notification`, `Stop`, `SubagentStop`.
+6. **Create hooks** (if needed) — `hooks/hooks.json` with event-based shell commands. Use `${CLAUDE_PLUGIN_ROOT}` to reference scripts within the plugin (e.g., `bash ${CLAUDE_PLUGIN_ROOT}/hooks/my-script.sh`). Available events: `PreToolUse`, `PostToolUse`, `Notification`, `Stop`, `SubagentStop`.
 
 7. **Create agents** (if needed) — `agents/<agent-name>.md` with frontmatter specifying `model` and `tools`.
 
-8. **Create MCP servers** (if needed) — `mcp-servers/<server-name>.json` with `type` (stdio/sse), `command`, `args`, and `env`.
+8. **Create MCP servers** (if needed) — `mcp-servers/<server-name>.json` with `type` (stdio/sse), `command`, `args`, and `env`. Use `${CLAUDE_PLUGIN_ROOT}` for any file references within the plugin.
 
-9. **Create LSP servers** (if needed) — `lsp-servers/<server-name>.json` with `command`, `args`, and `languages`.
+9. **Create LSP servers** (if needed) — `lsp-servers/<server-name>.json` with `command`, `args`, and `languages`. Use `${CLAUDE_PLUGIN_ROOT}` for any file references within the plugin.
 
 10. **Write README.md** — with title, install command (`/plugin install <name>@rcommon-claude-plugins`), usage examples, components table, and structure tree.
 
@@ -55,3 +55,4 @@ Before committing, verify:
 - [ ] README.md exists with install command
 - [ ] Entry added to marketplace.json with matching name, version, and source path
 - [ ] All names consistent: directory = plugin.json name = marketplace.json name
+- [ ] All file references in hooks, MCP servers, and LSP servers use `${CLAUDE_PLUGIN_ROOT}` (no hardcoded or relative paths)

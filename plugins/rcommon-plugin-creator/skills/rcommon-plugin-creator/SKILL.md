@@ -55,6 +55,29 @@ plugins/<plugin-name>/
 
 Only create the directories the plugin actually needs — omit empty ones.
 
+### Portable File References with `${CLAUDE_PLUGIN_ROOT}`
+
+Claude Code sets the `CLAUDE_PLUGIN_ROOT` environment variable to the absolute path of the plugin's root directory at runtime. This path changes depending on how the plugin is installed:
+
+- **Local development**: `~/projects/my-marketplace/plugins/my-plugin/`
+- **Marketplace cache**: `~/.claude/plugins/marketplace-name/plugins/my-plugin/`
+- **Direct install**: `~/.claude/plugins/my-plugin/`
+
+**Always use `${CLAUDE_PLUGIN_ROOT}` when a component needs to reference another file within the plugin.** Never hardcode paths or assume a specific install location.
+
+Examples:
+- Hook referencing a script: `bash ${CLAUDE_PLUGIN_ROOT}/hooks/my-script.sh`
+- MCP server referencing a config: `${CLAUDE_PLUGIN_ROOT}/mcp-servers/config.json`
+- Skill reading an asset programmatically: `${CLAUDE_PLUGIN_ROOT}/skills/my-skill/assets/data.json`
+
+This applies to:
+- Shell commands in `hooks.json`
+- MCP server `command` and `args` fields
+- LSP server `command` and `args` fields
+- Any script that needs to locate files within the plugin
+
+**Exception**: SKILL.md files can reference their own assets using relative paths (e.g., `assets/logo.png`) because Claude resolves these relative to the SKILL.md location. But any shell command or programmatic access MUST use `${CLAUDE_PLUGIN_ROOT}`.
+
 ### Rules
 
 - The plugin directory name MUST match the `name` field in plugin.json.
@@ -117,7 +140,8 @@ description: "<Detailed description of when to use this skill. Include specific 
 - `name` in frontmatter must be kebab-case and match the skill directory name.
 - `description` in frontmatter is the primary mechanism Claude uses to decide when to invoke the skill. Make it detailed and include trigger phrases like "Use when the user asks to...", "Triggers on requests like '...'".
 - The markdown body provides the detailed instructions Claude follows once the skill is matched.
-- Reference assets using relative paths from the skill directory (e.g., `assets/logo.png`).
+- In SKILL.md markdown content, reference assets using relative paths from the skill directory (e.g., `assets/logo.png`) — Claude resolves these automatically.
+- In shell commands or scripts that need to access assets programmatically, use `${CLAUDE_PLUGIN_ROOT}/skills/<skill-name>/assets/<file>` instead.
 
 ### Assets
 
@@ -168,7 +192,7 @@ Create `hooks/hooks.json`:
   "hooks": {
     "<event-name>": [
       {
-        "command": "<shell command to run>",
+        "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/<script-name>.sh",
         "description": "<what this hook does>"
       }
     ]
@@ -189,6 +213,7 @@ Create `hooks/hooks.json`:
 ### Rules
 
 - Hook commands run as shell processes — they must be executable.
+- **Always use `${CLAUDE_PLUGIN_ROOT}` to reference scripts and files** within the plugin. Never use relative paths or hardcoded absolute paths — the plugin's location varies by install method.
 - Hooks can block tool execution (PreToolUse) by returning a non-zero exit code.
 - Keep hooks fast — they run synchronously and block Claude.
 - Use `description` to explain what the hook does and why.
@@ -245,6 +270,7 @@ Create `mcp-servers/<server-name>.json`:
 - Use `sse` type for HTTP-based servers.
 - Include all required environment variables.
 - The `command` must be available on the user's PATH or be a full path.
+- **If the server script lives inside the plugin**, reference it with `${CLAUDE_PLUGIN_ROOT}` in the `command` or `args` fields (e.g., `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-servers/server.js"]`).
 
 ## Step 9: Create LSP Servers (if needed)
 
@@ -266,6 +292,7 @@ Create `lsp-servers/<server-name>.json`:
 
 - Specify which languages the server supports.
 - The command must be installed on the user's system.
+- **If the LSP server script lives inside the plugin**, reference it with `${CLAUDE_PLUGIN_ROOT}` in the `command` or `args` fields.
 
 ## Step 10: Register in marketplace.json
 
@@ -326,6 +353,7 @@ git commit -m "Add <plugin-name> plugin: <short description>"
 | Adding version to SKILL.md frontmatter but not plugin.json | Inconsistent versioning | Keep version in plugin.json as the source of truth |
 | Creating empty directories for unused components | Unnecessary clutter | Only create directories the plugin actually uses |
 | Command name missing `rcommon:` prefix | Collides with commands from other marketplaces | Always use `rcommon:<command-name>` in the `name` field |
+| Hardcoded or relative paths in hooks/MCP/LSP configs | Plugin breaks when installed from marketplace cache vs local | Always use `${CLAUDE_PLUGIN_ROOT}` to reference files within the plugin |
 
 ## rCommon Conventions
 
@@ -357,3 +385,4 @@ Before committing, verify:
 - [ ] All names are kebab-case and consistent across files
 - [ ] No `marketplace.json` inside the plugin directory
 - [ ] No empty directories
+- [ ] All file references in hooks, MCP servers, and LSP servers use `${CLAUDE_PLUGIN_ROOT}` (no hardcoded or relative paths)

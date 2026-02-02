@@ -13,7 +13,7 @@ Verify the current working directory is inside a clone of the marketplace repo. 
 
 ## Step 1: Run Validation
 
-Run all 7 consistency checks from `/rcommon:validate-marketplace`:
+Run all 8 consistency checks from `/rcommon:validate-marketplace`:
 
 1. Name consistency (directory = plugin.json = marketplace.json)
 2. Version consistency (plugin.json version = marketplace.json version)
@@ -21,7 +21,8 @@ Run all 7 consistency checks from `/rcommon:validate-marketplace`:
 4. Description sync (advisory)
 5. Naming conventions (`rcommon-` prefix, `rcommon:` command prefix, kebab-case)
 6. Structural integrity (plugin.json exists, SKILL.md has frontmatter, README exists, no empty dirs)
-7. Orphan detection
+7. Portable paths (hooks, MCP servers, LSP servers use `${CLAUDE_PLUGIN_ROOT}` for plugin-local file references)
+8. Orphan detection
 
 Present the health report table.
 

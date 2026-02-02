@@ -52,7 +52,17 @@ For each plugin directory:
 - [ ] No empty component directories
 - [ ] `README.md` exists
 
-## Check 7: Orphan Detection
+## Check 7: Portable Path References
+
+For each plugin that has hooks, MCP servers, or LSP servers:
+
+- [ ] All `hooks.json` commands that reference files within the plugin use `${CLAUDE_PLUGIN_ROOT}` (not relative or hardcoded paths)
+- [ ] All MCP server configs that reference plugin-local scripts/files use `${CLAUDE_PLUGIN_ROOT}` in `command` or `args`
+- [ ] All LSP server configs that reference plugin-local scripts/files use `${CLAUDE_PLUGIN_ROOT}` in `command` or `args`
+
+Flag any hardcoded absolute paths or bare relative paths (e.g., `./hooks/script.sh`, `hooks/script.sh`) as FAIL.
+
+## Check 8: Orphan Detection
 
 - Directories under `plugins/` without `.claude-plugin/plugin.json`
 - SKILL.md files missing YAML frontmatter
@@ -73,6 +83,7 @@ Present results as:
 | Description sync | PASS/WARN | ... |
 | Naming conventions | PASS/FAIL | ... |
 | Structural integrity | PASS/FAIL | ... |
+| Portable paths | PASS/FAIL | ... |
 | Orphan detection | PASS/WARN | ... |
 
 Total plugins: N
