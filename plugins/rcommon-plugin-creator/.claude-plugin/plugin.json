@@ -1,0 +1,5 @@
+{
+  "name": "rcommon-plugin-creator",
+  "description": "rCommon marketplace governance: create new plugins and maintain existing ones with correct structure, naming, versioning, and conventions.",
+  "version": "1.0.0"
+}

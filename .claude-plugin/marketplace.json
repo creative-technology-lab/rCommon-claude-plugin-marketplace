@@ -1,0 +1,20 @@
+{
+  "name": "rcommon-claude-plugins",
+  "owner": {
+    "name": "Russell Hall",
+    "email": "russell@creativetechnologylab.io"
+  },
+  "metadata": {
+    "description": "Common plugins shared across all Claude Code marketplaces. Contains foundational tools like plugin governance, marketplace management, and other reusable utilities.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "rcommon-plugin-creator",
+      "description": "Marketplace governance: create new plugins and maintain existing ones with correct structure, naming, versioning, and conventions.",
+      "source": "./plugins/rcommon-plugin-creator",
+      "version": "1.0.0",
+      "category": "tooling"
+    }
+  ]
+}
